@@ -18,9 +18,13 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location]);
+
   const controlNavbar = () => {
     if (window.scrollY > 200) {
-      if (window.screenY > lastScrollY && !mobileMenu) {
+      if (window.scrollY > lastScrollY && !mobileMenu) {
         setShow("hide");
       } else {
         setShow("show");
@@ -32,16 +36,20 @@ const Header = () => {
   };
 
   useEffect(() => {
-    window.scrollTo(0, 0)
-  }, [location]);
-
-
-  useEffect(() => {
     window.addEventListener("scroll", controlNavbar);
     return () => {
       window.removeEventListener("scroll", controlNavbar);
     };
   }, [lastScrollY]);
+
+  const searchQueryHandler = (event) => {
+    if (event.key === "Enter" && query.length > 0) {
+      navigate(`/search/${query}`);
+      setTimeout(() => {
+        setShowSearch(false);
+      }, 1000);
+    }
+  };
 
   const openSearch = () => {
     setMobileMenu(false);
@@ -51,15 +59,6 @@ const Header = () => {
   const openMobileMenu = () => {
     setMobileMenu(true);
     setShowSearch(false);
-  };
-
-  const searchQueryHandler = (event) => {
-    if (event.key === "Enter" && query.length > 0) {
-      navigate(`/search/${query}`);
-      setTimeout(() => {
-        setShowSearch(false);
-      }, 1000);
-    }
   };
 
   const navigationHandler = (type) => {
@@ -74,7 +73,7 @@ const Header = () => {
   return (
     <header className={`header ${mobileMenu ? "mobileView" : ""} ${show}`}>
       <ContentWrapper>
-        <div className="logo">
+        <div className="logo" onClick={() => navigate("/")}>
           <img src={logo} alt="" />
         </div>
         <ul className="menuItems">
@@ -88,6 +87,7 @@ const Header = () => {
             <HiOutlineSearch onClick={openSearch} />
           </li>
         </ul>
+
         <div className="mobileMenuItems">
           <HiOutlineSearch onClick={openSearch} />
           {mobileMenu ? (
@@ -103,10 +103,9 @@ const Header = () => {
             <div className="searchInput">
               <input
                 type="text"
-                className="text"
-                placeholder="Search for a movie or TV show...."
-                onKeyUp={searchQueryHandler}
+                placeholder="Search for a movie or tv show...."
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyUp={searchQueryHandler}
               />
               <VscChromeClose onClick={() => setShowSearch(false)} />
             </div>
